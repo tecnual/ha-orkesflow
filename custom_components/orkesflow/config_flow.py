@@ -36,7 +36,7 @@ class OrkesflowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             valid = await client.async_validate_credentials()
             if valid:
                 try:
-                    self._boards = await client.async_get_shopping_boards()
+                    self._boards = await client.async_get_boards()
                     return await self.async_step_boards()
                 except Exception:
                     errors["base"] = "cannot_connect"
@@ -45,7 +45,7 @@ class OrkesflowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         schema = vol.Schema(
             {
-                vol.Required(CONF_URL, default="http://localhost:3000"): str,
+                vol.Required(CONF_URL, default="https://orkesflow-api-dev.tecnual.com"): str,
                 vol.Required(CONF_TOKEN): str,
             }
         )
@@ -68,9 +68,15 @@ class OrkesflowConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        board_options = {
-            b["id"]: b.get("title") or b.get("name") or b["id"] for b in self._boards
-        }
+        board_options: Dict[str, str] = {}
+        for b in self._boards:
+            b_id = b.get("id")
+            if not b_id:
+                continue
+            title = b.get("title") or b.get("name") or b_id
+            space_name = b.get("space", {}).get("name") if isinstance(b.get("space"), dict) else None
+            label = f"{title} ({space_name})" if space_name else str(title)
+            board_options[b_id] = label
 
         schema = vol.Schema(
             {

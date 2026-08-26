@@ -29,9 +29,18 @@ class OrkesflowDataUpdateCoordinator(DataUpdateCoordinator[Dict[str, List[Dict[s
         )
         self.api = api
         self.selected_board_ids = selected_board_ids
+        self.boards_info: Dict[str, Dict[str, Any]] = {}
 
     async def _async_update_data(self) -> Dict[str, List[Dict[str, Any]]]:
         """Fetch data from API for all selected boards."""
+        try:
+            all_boards = await self.api.async_get_boards()
+            for b in all_boards:
+                if "id" in b:
+                    self.boards_info[b["id"]] = b
+        except Exception as err:
+            _LOGGER.warning("Could not refresh board metadata in coordinator: %s", err)
+
         data: Dict[str, List[Dict[str, Any]]] = {}
         try:
             for board_id in self.selected_board_ids:

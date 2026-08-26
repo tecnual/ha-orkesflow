@@ -54,12 +54,22 @@ class OrkesflowTodoListEntity(
         super().__init__(coordinator)
         self._board_id = board_id
         self._attr_unique_id = f"orkesflow_board_{board_id}"
-        self._attr_name = f"Orkesflow Board {board_id}"
+
+    @property
+    def name(self) -> str:
+        """Return the entity display name formatted as [Nombre de la lista] (Orkesflow)."""
+        board_info = self.coordinator.boards_info.get(self._board_id, {})
+        list_name = (
+            board_info.get("title")
+            or board_info.get("name")
+            or f"Lista {self._board_id}"
+        )
+        return f"{list_name} (Orkesflow)"
 
     @property
     def todo_items(self) -> Optional[List[TodoItem]]:
         """Return the list of Todo items for this board."""
-        items_raw = self.coordinator.data.get(self._board_id, [])
+        items_raw = self.coordinator.data.get(self._board_id, []) if self.coordinator.data else []
         todo_list: List[TodoItem] = []
 
         for item in items_raw:
@@ -69,10 +79,20 @@ class OrkesflowTodoListEntity(
                 if is_completed
                 else TodoItemStatus.NEEDS_ACTION
             )
+
+            # Properly extract product name or card title or item name
+            product = item.get("product") if isinstance(item.get("product"), dict) else {}
+            summary = (
+                item.get("name")
+                or item.get("title")
+                or product.get("name")
+                or "Sin título"
+            )
+
             todo_list.append(
                 TodoItem(
-                    summary=item.get("name") or item.get("title") or "Sin título",
-                    uid=item.get("id"),
+                    summary=summary,
+                    uid=str(item.get("id")),
                     status=status,
                 )
             )
@@ -92,7 +112,9 @@ class OrkesflowTodoListEntity(
         if not item.uid:
             return
         is_completed = item.status == TodoItemStatus.COMPLETED
-        await self.coordinator.api.async_toggle_shopping_item(item.uid, is_completed)
+        await self.coordinator.api.async_toggle_shopping_item(
+            item.uid, is_completed, board_id=self._board_id
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_delete_todo_item(self, uids: List[str]) -> None:
