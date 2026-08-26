@@ -13,7 +13,7 @@ Integración oficial de **Orkesflow** para Home Assistant. Permite sincronizar t
 
 1. Abre **HACS** en tu Home Assistant.
 2. Haz clic en los tres puntos de la esquina superior derecha y selecciona **Repositorios personalizados**.
-3. Añade la URL de este repositorio, selecciona la categoría **Integración** y pulsa **Añadir**.
+3. Añade la URL `https://github.com/tecnual/ha-orkesflow`, selecciona la categoría **Integración** y pulsa **Añadir**.
 4. Busca **Orkesflow** e instálalo.
 5. Reinicia Home Assistant.
 
