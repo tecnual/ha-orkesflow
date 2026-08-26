@@ -1,0 +1,8 @@
+{
+  "name": "Orkesflow Integration for Home Assistant",
+  "content_in_root": false,
+  "zip_release": false,
+  "filename": "orkesflow.zip",
+  "render_readme": true,
+  "country": []
+}

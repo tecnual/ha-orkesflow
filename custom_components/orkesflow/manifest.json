@@ -1,0 +1,11 @@
+{
+  "domain": "orkesflow",
+  "name": "Orkesflow",
+  "codeowners": ["@orkesflow"],
+  "config_flow": true,
+  "documentation": "https://github.com/orkestria/orkesflow",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/orkestria/orkesflow/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
